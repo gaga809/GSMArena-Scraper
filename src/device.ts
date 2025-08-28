@@ -512,7 +512,7 @@ export async function search(query: string): Promise<DeviceSummary[]> {
 
         // name
         const deviceNameTag = getChildOfParentFromElement(
-          $$,
+          $,
           $(element),
           "strong span"
         );
@@ -520,7 +520,7 @@ export async function search(query: string): Promise<DeviceSummary[]> {
           ? extrapolateTextFromElement(deviceNameTag)
           : "";
 
-        const imgElement = getChildOfParentFromElement($$, $(element), "img");
+        const imgElement = getChildOfParentFromElement($, $(element), "img");
         if (!imgElement) {
           reject(new Error("Image element not found"));
           return;
@@ -543,7 +543,7 @@ export async function search(query: string): Promise<DeviceSummary[]> {
         // announced
         const deviceAnnounced =
           titleAttr && titleAttr.split("Features")[1]
-            ? titleAttr.split("Features")[1]?.split(".")[1]
+            ? titleAttr.split("Features")[0]?.split(".")[1]
             : "";
 
         // img
@@ -560,34 +560,75 @@ export async function search(query: string): Promise<DeviceSummary[]> {
           ? titleAttrSplitted[1].replaceAll("chipset", "").trim()
           : "";
 
-        // battery
-        const deviceBattery = titleAttrSplitted[2]
-          ? titleAttrSplitted[2].replaceAll("battery", "").trim()
+        let fieldsIndex = 2;
+        // primary camera
+        const devicePrimaryCamera = titleAttrSplitted[fieldsIndex].includes(
+          "primary camera"
+        )
+          ? titleAttrSplitted[fieldsIndex]
+              .replaceAll("primary camera", "")
+              .trim()
           : "";
+
+        if (devicePrimaryCamera) {
+          fieldsIndex++;
+        }
+
+        // selfieCamera
+        const deviceSelfieCamera = titleAttrSplitted[fieldsIndex].includes(
+          "front camera"
+        )
+          ? titleAttrSplitted[fieldsIndex].replaceAll("front camera", "").trim()
+          : "";
+
+        if (deviceSelfieCamera) {
+          fieldsIndex++;
+        }
+
+        // battery
+
+        const deviceBattery = titleAttrSplitted[fieldsIndex].includes("battery")
+          ? titleAttrSplitted[fieldsIndex].replaceAll("battery", "").trim()
+          : "";
+
+        if (deviceBattery) {
+          fieldsIndex++;
+        }
 
         // storage
-        const deviceStorage = titleAttrSplitted[3]
-          ? titleAttrSplitted[3].replaceAll("storage", "").trim()
+        const deviceStorage = titleAttrSplitted[fieldsIndex].includes("storage")
+          ? titleAttrSplitted[fieldsIndex].replaceAll("storage", "").trim()
           : "";
 
+        if (deviceStorage) {
+          fieldsIndex++;
+        }
+
         // memory
-        const deviceMemory = titleAttrSplitted[4]
-          ? titleAttrSplitted[4].replaceAll("RAM", "").trim()
+        const deviceMemory = titleAttrSplitted[fieldsIndex].includes("RAM")
+          ? titleAttrSplitted[fieldsIndex].replaceAll("RAM", "").trim()
           : "";
+
+        if (deviceMemory) {
+          fieldsIndex++;
+        }
 
         // other features
         const deviceOther =
-          titleAttrSplitted.length > 5 ? titleAttrSplitted.slice(5) : [];
+          titleAttrSplitted.length > fieldsIndex
+            ? titleAttrSplitted.slice(fieldsIndex)
+            : [];
 
         const deviceSpecs = {
           inchDisplay: deviceDisplay,
           chipset: deviceChipset,
+          primaryCamera: devicePrimaryCamera,
+          selfieCamera: deviceSelfieCamera,
           battery: deviceBattery,
           storage: deviceStorage,
           memory: deviceMemory,
           otherFeatures: deviceOther,
         } as DeviceSummarySpecs;
-
         if (deviceId) {
           deviceList.push({
             id: deviceId,
@@ -658,7 +699,7 @@ export async function fullSearch(query: string): Promise<DeviceSummary[]> {
         // announced
         const deviceAnnounced =
           titleAttr && titleAttr.split("Features")[1]
-            ? titleAttr.split("Features")[1]?.split(".")[1]
+            ? titleAttr.split("Features")[0]?.split(".")[1]
             : "";
 
         // img
@@ -675,28 +716,70 @@ export async function fullSearch(query: string): Promise<DeviceSummary[]> {
           ? titleAttrSplitted[1].replaceAll("chipset", "").trim()
           : "";
 
-        // battery
-        const deviceBattery = titleAttrSplitted[2]
-          ? titleAttrSplitted[2].replaceAll("battery", "").trim()
+        let fieldsIndex = 2;
+        // primary camera
+        const devicePrimaryCamera = titleAttrSplitted[fieldsIndex].includes(
+          "primary camera"
+        )
+          ? titleAttrSplitted[fieldsIndex]
+              .replaceAll("primary camera", "")
+              .trim()
           : "";
+
+        if (devicePrimaryCamera) {
+          fieldsIndex++;
+        }
+
+        // selfieCamera
+        const deviceSelfieCamera = titleAttrSplitted[fieldsIndex].includes(
+          "front camera"
+        )
+          ? titleAttrSplitted[fieldsIndex].replaceAll("front camera", "").trim()
+          : "";
+
+        if (deviceSelfieCamera) {
+          fieldsIndex++;
+        }
+
+        // battery
+
+        const deviceBattery = titleAttrSplitted[fieldsIndex].includes("battery")
+          ? titleAttrSplitted[fieldsIndex].replaceAll("battery", "").trim()
+          : "";
+
+        if (deviceBattery) {
+          fieldsIndex++;
+        }
 
         // storage
-        const deviceStorage = titleAttrSplitted[3]
-          ? titleAttrSplitted[3].replaceAll("storage", "").trim()
+        const deviceStorage = titleAttrSplitted[fieldsIndex].includes("storage")
+          ? titleAttrSplitted[fieldsIndex].replaceAll("storage", "").trim()
           : "";
 
+        if (deviceStorage) {
+          fieldsIndex++;
+        }
+
         // memory
-        const deviceMemory = titleAttrSplitted[4]
-          ? titleAttrSplitted[4].replaceAll("RAM", "").trim()
+        const deviceMemory = titleAttrSplitted[fieldsIndex].includes("RAM")
+          ? titleAttrSplitted[fieldsIndex].replaceAll("RAM", "").trim()
           : "";
+
+        if (deviceMemory) {
+          fieldsIndex++;
+        }
 
         // other features
         const deviceOther =
-          titleAttrSplitted.length > 5 ? titleAttrSplitted.slice(5) : [];
+          titleAttrSplitted.length > fieldsIndex
+            ? titleAttrSplitted.slice(fieldsIndex)
+            : [];
 
         const deviceSpecs = {
           inchDisplay: deviceDisplay,
           chipset: deviceChipset,
+          primaryCamera: devicePrimaryCamera,
+          selfieCamera: deviceSelfieCamera,
           battery: deviceBattery,
           storage: deviceStorage,
           memory: deviceMemory,

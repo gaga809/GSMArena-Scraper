@@ -17,6 +17,8 @@ export interface DeviceSummary {
 export interface DeviceSummarySpecs {
     inchDisplay: string;
     chipset: string;
+    primaryCamera: string;
+    selfieCamera: string;
     battery: string;
     storage: string;
     memory: string;

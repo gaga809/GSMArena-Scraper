@@ -1,4 +1,6 @@
 import * as cheerio from "cheerio";
+import { AnyNode } from "domhandler";
+import { DeviceCamera, DeviceCameraSpecs } from "./types.js";
 
 export const BASE_URL = "https://www.gsmarena.com/";
 const USER_AGENT =
@@ -78,4 +80,130 @@ function middlewareFetch(response: Response) {
         );
     }
     return response.text();
+}
+
+/// CHEERIO
+export function findTag(document: cheerio.CheerioAPI, query: string) {
+    return document(query);
+}
+
+export function extrapolateText(document: cheerio.CheerioAPI, query: string) {
+    const element = findTag(document, query);
+    return element.length > 0 ? element.text().trim() : "";
+}
+
+export function extrapolateTextNoHTML(document: cheerio.CheerioAPI, query: string) {
+    const element = findTag(document, query);
+    if (element.length > 0) {
+        return element.clone().children().remove().end().text().trim();
+    }
+    return "";
+}
+
+export function extrapolateAttr(document: cheerio.CheerioAPI, query: string, attr: string) {
+    const element = findTag(document, query);
+    return element.length > 0 ? element.attr(attr) : "";
+}
+
+export function extrapolateAttrFromElement(element: cheerio.Cheerio<AnyNode>, attr: string) {
+    return element.length > 0 ? element.attr(attr)?.toString() : "";
+}
+
+export function getChildOfParent(document: cheerio.CheerioAPI, parentQuery: string, childQuery: string) {
+    const parentElement = findTag(document, parentQuery);
+    if (parentElement.length > 0) {
+        const childElement = parentElement.find(childQuery);
+        return childElement.length > 0 ? childElement : null;
+    }
+    return null;
+}
+
+export function getChildOfParentFromElement(document: cheerio.CheerioAPI, parentElement:  cheerio.Cheerio<AnyNode>, childQuery: string) {
+        const childElement = parentElement.find(childQuery);
+        return childElement.length > 0 ? childElement : null;
+}
+
+export function loadCamera(document: cheerio.CheerioAPI, camN: number) : DeviceCamera {
+    const searchedCamera = camN === 1 ? "Main Camera" : `Selfie camera`;
+
+    const cameraType = findTag(document, `tr > th:contains("${searchedCamera}")`)
+        .nextAll('td.ttl')
+        .first()
+        .find('a')
+        .text()
+        .trim();
+
+    const cameras = extrapolateText(document, `td[data-spec="cam${camN}modules"]`);
+    const camerasList = [] as DeviceCameraSpecs[];
+
+    if (cameras) {
+        cameras.split("<br />").forEach((cameraRaw) => {
+            const camera = cameraRaw?.trim();
+            if (!camera) return;
+
+            const parts = camera.split(",").map(p => p.trim());
+
+            camerasList.push({
+                resolution: parts[0] || "",
+                aperture: parts[1] || "",
+                objective: parts[2] || "",
+                features: parts.slice(3) || []
+            });
+        });
+    }
+
+    const cameraFeatures = extrapolateText(document, `td[data-spec="cam${camN}features"]`);
+    const cameraFeaturesList = cameraFeatures ? cameraFeatures.split(",").map(feature => feature.trim()) : [];
+
+    const cameraVideo = extrapolateText(document, `td[data-spec="cam${camN}video"]`);
+    const cameraVideoList = cameraVideo ? cameraVideo.split(";")[0].trim().split(",").map((video) => {
+        return video.trim();
+    }) : [];
+
+    const cameraOtherList = cameraVideo.split(";")[1] ? cameraVideo.split(";")[1].trim().split(",").map((other) => {
+        return other.trim();
+    }) : [];
+
+    return {
+        type: cameraType,
+        specs: camerasList,
+        features: cameraFeaturesList,
+        video: cameraVideoList,
+        other: cameraOtherList
+    };
+}
+
+/// MISC
+export function extrapolateDate(gsmarenaDate: string){
+    try{
+        const dateDivided = gsmarenaDate.split(",");
+        const dateYear = parseInt(dateDivided[0]);
+
+        const dateDivided2 = dateDivided[1].trim().split(" ");
+        const dateMonth = fromStringToMonthNumber(dateDivided2[0]);
+        const dateDay = parseInt(dateDivided2[1]);
+
+        return `${dateYear}-${dateMonth.toString().padStart(2, '0')}-${dateDay.toString().padStart(2, '0')}`;
+    }catch{
+        console.error("Error extrapolating date:", gsmarenaDate);
+        return gsmarenaDate;
+    }
+}
+
+function fromStringToMonthNumber(monthString: string): number {
+    const monthMap: { [key: string]: number } = {
+        "january": 1,
+        "february": 2,
+        "march": 3,
+        "april": 4,
+        "may": 5,
+        "june": 6,
+        "july": 7,
+        "august": 8,
+        "september": 9,
+        "october": 10,
+        "november": 11,
+        "december": 12
+    };
+    return monthMap[monthString.toLowerCase()] !== undefined ? monthMap[monthString.toLowerCase()] : -1;
 }

@@ -28,7 +28,7 @@ export interface Device {
     id: string;
     name: string;
     photo: string;
-    network: string[];
+    network: DeviceNetwork;
     launch: DeviceLaunch;
     body: DeviceBody;
     display: DeviceDisplay;
@@ -38,11 +38,20 @@ export interface Device {
     selfieCamera: DeviceCamera;
     sound: DeviceSound;
     comms: DeviceComms;
-    features: string[];
+    features: DeviceFeatures;
     battery: DeviceBattery;
     misc: DeviceMisc;
     pictures: string[];
     //reviews: string[]; // Will be added in the future
+}
+
+export interface DeviceNetwork{
+    technology: string;
+    bands2G: string;
+    bands3G: string;
+    bands4G: string;
+    bands5G: string;
+    speed: string;
 }
 
 export interface DeviceLaunch {
@@ -54,15 +63,15 @@ export interface DeviceLaunch {
 export interface DeviceBody {
     dimensions: DeviceBodyDimensions;
     weight: DeviceBodyWeight;
-    build: string[];
-    sim: string[];
+    build: string;
+    sim: string;
     other: string[];
 }
 
 export interface DeviceBodyDimensions {
-    heightCM: number; // Dimensions in centimeters
-    widthCM: number;
-    depthCM: number;
+    heightMM: number; // Dimensions in millimeters
+    widthMM: number;
+    depthMM: number;
     heightInch: number; // Dimensions in inches
     widthInch: number;
     depthInch: number;
@@ -78,6 +87,7 @@ export interface DeviceDisplay {
     size: DeviceDisplayDimensions;
     resolution: DeviceDisplayResolution;
     protection: string[];
+    others: string[];
 }
 
 export interface DeviceDisplayDimensions {
@@ -90,7 +100,7 @@ export interface DeviceDisplayResolution {
     width: number;
     height: number;
     ratio: string;
-    pixelDensityPPI: number;
+    pixelDensityPPI: string;
 }
 
 export interface DevicePlatform {
@@ -103,6 +113,7 @@ export interface DevicePlatform {
 export interface DevicePlatformOS {
     name: string;
     version: string;
+    upTo: string | null;
     customName: string | null;
 }
 
@@ -113,8 +124,7 @@ export interface DeviceMemory {
 
 export interface DeviceMemoryInternal {
     storageOptions: DeviceMemoryInternalStorageOption[];
-    memory: string;
-    type: string;
+    other: string;
 }
 
 export interface DeviceMemoryInternalStorageOption {
@@ -125,8 +135,9 @@ export interface DeviceMemoryInternalStorageOption {
 export interface DeviceCamera {
     type: string;
     specs: DeviceCameraSpecs[];
-    feaures: string[];
+    features: string[];
     video: string[];
+    other: string[];
 }
 
 export interface DeviceCameraSpecs {
@@ -137,7 +148,7 @@ export interface DeviceCameraSpecs {
 }
 
 export interface DeviceSound {
-    loudspeaker: string;
+    loudSpeaker: string;
     jack: string;
 }
 
@@ -151,11 +162,14 @@ export interface DeviceComms {
     usb: string[];
 }
 
+export interface DeviceFeatures {
+    sensors: string[];
+    other: string[]
+}
+
 export interface DeviceBattery {
     type: string;
-    capacitymAh: number;
     charging: string[];
-    others: string[];
 }
 
 export interface DeviceMisc {
@@ -163,12 +177,11 @@ export interface DeviceMisc {
     models: string[];
     price: string;
     sar: DeviceMiscSar | null;
-    others: string[];
 }
 
 export interface DeviceMiscSar {
-    eu: DeviceMiscSarSpecs;
-    other: DeviceMiscSarSpecs;
+    eu: DeviceMiscSarSpecs | null;
+    other: DeviceMiscSarSpecs | null;
 }
 
 export interface DeviceMiscSarSpecs {

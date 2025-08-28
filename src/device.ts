@@ -527,9 +527,125 @@ export async function search(query: string): Promise<DeviceSummary[]> {
         }
 
         const titleAttr = extrapolateAttrFromElement($(imgElement), "title");
-        const titleAttrSplitted = titleAttr && titleAttr.split("Features")[1]
-          ? titleAttr.split("Features")[1].split(",")
-          : [];
+        const titleAttrSplitted =
+          titleAttr && titleAttr.split("Features")[1]
+            ? titleAttr.split("Features")[1].split(",")
+            : [];
+
+        // fullname
+        const deviceFullName =
+          titleAttr && titleAttr.split("Features")[0]
+            ? titleAttr.split("Features")[0]?.split(".")[0]
+              ? titleAttr.split("Features")[0]?.split(".")[0]
+              : titleAttr || ""
+            : titleAttr || "";
+
+        // announced
+        const deviceAnnounced =
+          titleAttr && titleAttr.split("Features")[1]
+            ? titleAttr.split("Features")[1]?.split(".")[1]
+            : "";
+
+        // img
+        const imgAttr = extrapolateAttrFromElement($(imgElement), "src");
+        const imgUrl = imgAttr ? imgAttr : "";
+
+        // display
+        const deviceDisplay = titleAttrSplitted[0]
+          ? titleAttrSplitted[0].replaceAll("display", "").trim()
+          : "";
+
+        // chipset
+        const deviceChipset = titleAttrSplitted[1]
+          ? titleAttrSplitted[1].replaceAll("chipset", "").trim()
+          : "";
+
+        // battery
+        const deviceBattery = titleAttrSplitted[2]
+          ? titleAttrSplitted[2].replaceAll("battery", "").trim()
+          : "";
+
+        // storage
+        const deviceStorage = titleAttrSplitted[3]
+          ? titleAttrSplitted[3].replaceAll("storage", "").trim()
+          : "";
+
+        // memory
+        const deviceMemory = titleAttrSplitted[4]
+          ? titleAttrSplitted[4].replaceAll("RAM", "").trim()
+          : "";
+
+        // other features
+        const deviceOther =
+          titleAttrSplitted.length > 5 ? titleAttrSplitted.slice(5) : [];
+
+        const deviceSpecs = {
+          inchDisplay: deviceDisplay,
+          chipset: deviceChipset,
+          battery: deviceBattery,
+          storage: deviceStorage,
+          memory: deviceMemory,
+          otherFeatures: deviceOther,
+        } as DeviceSummarySpecs;
+
+        if (deviceId) {
+          deviceList.push({
+            id: deviceId,
+            name: deviceName,
+            fullName: deviceFullName,
+            announced: deviceAnnounced,
+            img: imgUrl,
+            specs: deviceSpecs,
+          });
+        }
+      });
+
+      resolve(deviceList);
+    } catch (error) {
+      reject(new Error("[SEARCH PAGE] " + error));
+    }
+  });
+}
+
+export async function fullSearch(query: string): Promise<DeviceSummary[]> {
+  return new Promise<DeviceSummary[]>(async (resolve, reject) => {
+    try {
+      const deviceList: DeviceSummary[] = [];
+      const searchUrl = `${BASE_URL}results.php3?sQuickSearch=yes&sName=${encodeURIComponent(
+        query
+      )}`;
+      const $ = await fetchPage(searchUrl);
+
+      fs.writeFileSync("search.html", $.html());
+
+      const devices = findTag($, "div.makers > ul > li > a");
+      devices.each((index, element) => {
+        // id
+        const deviceId = extrapolateAttrFromElement($(element), "href")?.split(
+          "."
+        )[0];
+
+        // name
+        const deviceNameTag = getChildOfParentFromElement(
+          $,
+          $(element),
+          "strong span"
+        );
+        const deviceName = deviceNameTag
+          ? extrapolateTextFromElement(deviceNameTag)
+          : "";
+
+        const imgElement = getChildOfParentFromElement($, $(element), "img");
+        if (!imgElement) {
+          reject(new Error("Image element not found"));
+          return;
+        }
+
+        const titleAttr = extrapolateAttrFromElement($(imgElement), "title");
+        const titleAttrSplitted =
+          titleAttr && titleAttr.split("Features")[1]
+            ? titleAttr.split("Features")[1].split(",")
+            : [];
 
         // fullname
         const deviceFullName =

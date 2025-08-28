@@ -10,10 +10,8 @@ let CAN_FETCH = true;
 
 export async function handleRateLimit(waitTime: number) {
     CAN_FETCH = false;
-    console.warn(`Rate limited! Waiting for ${waitTime / 1000} seconds...`);
     await new Promise((resolve) => setTimeout(resolve, waitTime));
     CAN_FETCH = true;
-    console.log("Resuming requests...");
 }
 
 export async function fetchPage(url: string): Promise<cheerio.CheerioAPI> {
@@ -90,6 +88,10 @@ export function findTag(document: cheerio.CheerioAPI, query: string) {
 export function extrapolateText(document: cheerio.CheerioAPI, query: string) {
     const element = findTag(document, query);
     return element.length > 0 ? element.text().trim() : "";
+}
+
+export function extrapolateTextFromElement(e: cheerio.Cheerio<AnyNode>) {
+    return e.text().replaceAll("<br>", "").replaceAll("<br />", "").replaceAll("&Prime;", "\"").trim();
 }
 
 export function extrapolateTextNoHTML(document: cheerio.CheerioAPI, query: string) {
@@ -171,6 +173,55 @@ export function loadCamera(document: cheerio.CheerioAPI, camN: number) : DeviceC
         video: cameraVideoList,
         other: cameraOtherList
     };
+}
+
+/// DECRYPT
+function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  const binary_string = atob(base64);
+  const len = binary_string.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binary_string.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+export async function decryptAESCBC(
+  base64Key: string,
+  base64Iv: string,
+  base64EncryptedData: string
+): Promise<string> {
+  if (!("crypto" in globalThis && "subtle" in globalThis.crypto)) {
+    throw new Error("Web Crypto API not supported");
+  }
+
+  const keyBuffer = base64ToArrayBuffer(base64Key);
+  const ivBuffer = base64ToArrayBuffer(base64Iv);
+  const encryptedDataBuffer = base64ToArrayBuffer(base64EncryptedData);
+
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    keyBuffer,
+    { name: "AES-CBC" },
+    false,
+    ["decrypt"]
+  );
+
+  const decryptedBuffer = await crypto.subtle.decrypt(
+    {
+      name: "AES-CBC",
+      iv: new Uint8Array(ivBuffer),
+    },
+    cryptoKey,
+    encryptedDataBuffer
+  );
+
+  const decoder = new TextDecoder();
+  return decoder.decode(decryptedBuffer);
+}
+
+export function formatDecryptedData(data:string){
+    return data.replaceAll("\n", "").replaceAll("\r", "").replaceAll("\t", "").trim();
 }
 
 /// MISC

@@ -9,8 +9,8 @@ export interface DeviceSummary {
     id: string;
     name: string;
     fullName: string;
-    brand: Brand;
     announced: string;
+    img: string;
     specs: DeviceSummarySpecs;
 }
 

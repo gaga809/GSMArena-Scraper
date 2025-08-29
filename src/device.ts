@@ -242,7 +242,10 @@ export function getDevice(deviceId: string): Promise<Device> {
         .filter((item) => item.length > 0);
       const osName = osList[0].split(" ")[0] || osList[0];
       const osVersion = osList[0].split(" ")[1] || "";
-      const osUpTo = osList[1].includes("up to") || osList[1].includes("upgradable") ? osList[1].trim() : "";
+      const osUpTo =
+        osList[1].includes("up to") || osList[1].includes("upgradable")
+          ? osList[1].trim()
+          : "";
       let osCustomName = "";
 
       if (osUpTo) {
@@ -478,7 +481,6 @@ export function getDevice(deviceId: string): Promise<Device> {
 export async function search(query: string): Promise<DeviceSummary[]> {
   return new Promise<DeviceSummary[]>(async (resolve, reject) => {
     try {
-      const deviceList: DeviceSummary[] = [];
       const searchUrl = `${BASE_URL}res.php3?sSearch=${encodeURIComponent(
         query
       )}`;
@@ -494,143 +496,7 @@ export async function search(query: string): Promise<DeviceSummary[]> {
       const formattedData = formatDecryptedData(decryptedData);
       const $$ = load(formattedData);
 
-      const devices = findTag($$, "div.makers > ul > li > a");
-      devices.each((index, element) => {
-        // id
-        const deviceId = extrapolateAttrFromElement($(element), "href")?.split(
-          "."
-        )[0];
-
-        // name
-        const deviceNameTag = getChildOfParentFromElement(
-          $,
-          $(element),
-          "strong span"
-        );
-        const deviceName = deviceNameTag
-          ? extrapolateTextFromElement(deviceNameTag)
-          : "";
-
-        const imgElement = getChildOfParentFromElement($, $(element), "img");
-        if (!imgElement) {
-          reject(new Error("Image element not found"));
-          return;
-        }
-
-        const titleAttr = extrapolateAttrFromElement($(imgElement), "title");
-        const titleAttrSplitted =
-          titleAttr && titleAttr.split("Features")[1]
-            ? titleAttr.split("Features")[1].split(",")
-            : [];
-
-        // fullname
-        const deviceFullName =
-          titleAttr && titleAttr.split("Features")[0]
-            ? titleAttr.split("Features")[0]?.split(".")[0]
-              ? titleAttr.split("Features")[0]?.split(".")[0]
-              : titleAttr || ""
-            : titleAttr || "";
-
-        // announced
-        const deviceAnnounced =
-          titleAttr && titleAttr.split("Features")[1]
-            ? titleAttr.split("Features")[0]?.split(".")[1]
-            : "";
-
-        // img
-        const imgAttr = extrapolateAttrFromElement($(imgElement), "src");
-        const imgUrl = imgAttr ? imgAttr : "";
-
-        // display
-        const deviceDisplay = titleAttrSplitted[0]
-          ? titleAttrSplitted[0].replaceAll("display", "").trim()
-          : "";
-
-        // chipset
-        const deviceChipset = titleAttrSplitted[1]
-          ? titleAttrSplitted[1].replaceAll("chipset", "").trim()
-          : "";
-
-        let fieldsIndex = 2;
-        // primary camera
-        const devicePrimaryCamera = titleAttrSplitted[fieldsIndex].includes(
-          "primary camera"
-        )
-          ? titleAttrSplitted[fieldsIndex]
-              .replaceAll("primary camera", "")
-              .trim()
-          : "";
-
-        if (devicePrimaryCamera) {
-          fieldsIndex++;
-        }
-
-        // selfieCamera
-        const deviceSelfieCamera = titleAttrSplitted[fieldsIndex].includes(
-          "front camera"
-        )
-          ? titleAttrSplitted[fieldsIndex].replaceAll("front camera", "").trim()
-          : "";
-
-        if (deviceSelfieCamera) {
-          fieldsIndex++;
-        }
-
-        // battery
-
-        const deviceBattery = titleAttrSplitted[fieldsIndex].includes("battery")
-          ? titleAttrSplitted[fieldsIndex].replaceAll("battery", "").trim()
-          : "";
-
-        if (deviceBattery) {
-          fieldsIndex++;
-        }
-
-        // storage
-        const deviceStorage = titleAttrSplitted[fieldsIndex].includes("storage")
-          ? titleAttrSplitted[fieldsIndex].replaceAll("storage", "").trim()
-          : "";
-
-        if (deviceStorage) {
-          fieldsIndex++;
-        }
-
-        // memory
-        const deviceMemory = titleAttrSplitted[fieldsIndex].includes("RAM")
-          ? titleAttrSplitted[fieldsIndex].replaceAll("RAM", "").trim()
-          : "";
-
-        if (deviceMemory) {
-          fieldsIndex++;
-        }
-
-        // other features
-        const deviceOther =
-          titleAttrSplitted.length > fieldsIndex
-            ? titleAttrSplitted.slice(fieldsIndex)
-            : [];
-
-        const deviceSpecs = {
-          inchDisplay: deviceDisplay,
-          chipset: deviceChipset,
-          primaryCamera: devicePrimaryCamera,
-          selfieCamera: deviceSelfieCamera,
-          battery: deviceBattery,
-          storage: deviceStorage,
-          memory: deviceMemory,
-          otherFeatures: deviceOther,
-        } as DeviceSummarySpecs;
-        if (deviceId) {
-          deviceList.push({
-            id: deviceId,
-            name: deviceName,
-            fullName: deviceFullName,
-            announced: deviceAnnounced,
-            img: imgUrl,
-            specs: deviceSpecs,
-          });
-        }
-      });
+      const deviceList = readDevicesFromHtml($$);
 
       resolve(deviceList);
     } catch (error) {
@@ -650,150 +516,208 @@ export async function fullSearch(query: string): Promise<DeviceSummary[]> {
 
       fs.writeFileSync("search.html", $.html());
 
-      const devices = findTag($, "div.makers > ul > li > a");
-      devices.each((index, element) => {
-        // id
-        const deviceId = extrapolateAttrFromElement($(element), "href")?.split(
-          "."
-        )[0];
-
-        // name
-        const deviceNameTag = getChildOfParentFromElement(
-          $,
-          $(element),
-          "strong span"
-        );
-        const deviceName = deviceNameTag
-          ? extrapolateTextFromElement(deviceNameTag)
-          : "";
-
-        const imgElement = getChildOfParentFromElement($, $(element), "img");
-        if (!imgElement) {
-          reject(new Error("Image element not found"));
-          return;
-        }
-
-        const titleAttr = extrapolateAttrFromElement($(imgElement), "title");
-        const titleAttrSplitted =
-          titleAttr && titleAttr.split("Features")[1]
-            ? titleAttr.split("Features")[1].split(",")
-            : [];
-
-        // fullname
-        const deviceFullName =
-          titleAttr && titleAttr.split("Features")[0]
-            ? titleAttr.split("Features")[0]?.split(".")[0]
-              ? titleAttr.split("Features")[0]?.split(".")[0]
-              : titleAttr || ""
-            : titleAttr || "";
-
-        // announced
-        const deviceAnnounced =
-          titleAttr && titleAttr.split("Features")[1]
-            ? titleAttr.split("Features")[0]?.split(".")[1]
-            : "";
-
-        // img
-        const imgAttr = extrapolateAttrFromElement($(imgElement), "src");
-        const imgUrl = imgAttr ? imgAttr : "";
-
-        // display
-        const deviceDisplay = titleAttrSplitted[0]
-          ? titleAttrSplitted[0].replaceAll("display", "").trim()
-          : "";
-
-        // chipset
-        const deviceChipset = titleAttrSplitted[1]
-          ? titleAttrSplitted[1].replaceAll("chipset", "").trim()
-          : "";
-
-        let fieldsIndex = 2;
-        // primary camera
-        const devicePrimaryCamera = titleAttrSplitted[fieldsIndex].includes(
-          "primary camera"
-        )
-          ? titleAttrSplitted[fieldsIndex]
-              .replaceAll("primary camera", "")
-              .trim()
-          : "";
-
-        if (devicePrimaryCamera) {
-          fieldsIndex++;
-        }
-
-        // selfieCamera
-        const deviceSelfieCamera = titleAttrSplitted[fieldsIndex].includes(
-          "front camera"
-        )
-          ? titleAttrSplitted[fieldsIndex].replaceAll("front camera", "").trim()
-          : "";
-
-        if (deviceSelfieCamera) {
-          fieldsIndex++;
-        }
-
-        // battery
-
-        const deviceBattery = titleAttrSplitted[fieldsIndex].includes("battery")
-          ? titleAttrSplitted[fieldsIndex].replaceAll("battery", "").trim()
-          : "";
-
-        if (deviceBattery) {
-          fieldsIndex++;
-        }
-
-        // storage
-        const deviceStorage = titleAttrSplitted[fieldsIndex].includes("storage")
-          ? titleAttrSplitted[fieldsIndex].replaceAll("storage", "").trim()
-          : "";
-
-        if (deviceStorage) {
-          fieldsIndex++;
-        }
-
-        // memory
-        const deviceMemory = titleAttrSplitted[fieldsIndex].includes("RAM")
-          ? titleAttrSplitted[fieldsIndex].replaceAll("RAM", "").trim()
-          : "";
-
-        if (deviceMemory) {
-          fieldsIndex++;
-        }
-
-        // other features
-        const deviceOther =
-          titleAttrSplitted.length > fieldsIndex
-            ? titleAttrSplitted.slice(fieldsIndex)
-            : [];
-
-        const deviceSpecs = {
-          inchDisplay: deviceDisplay,
-          chipset: deviceChipset,
-          primaryCamera: devicePrimaryCamera,
-          selfieCamera: deviceSelfieCamera,
-          battery: deviceBattery,
-          storage: deviceStorage,
-          memory: deviceMemory,
-          otherFeatures: deviceOther,
-        } as DeviceSummarySpecs;
-
-        if (deviceId) {
-          deviceList.push({
-            id: deviceId,
-            name: deviceName,
-            fullName: deviceFullName,
-            announced: deviceAnnounced,
-            img: imgUrl,
-            specs: deviceSpecs,
-          });
-        }
-      });
-
       resolve(deviceList);
     } catch (error) {
       reject(new Error("[SEARCH PAGE] " + error));
     }
   });
+}
+
+export function getAllDevicesOfBrand(
+  brandId: string
+): Promise<DeviceSummary[]> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let url = `${BASE_URL}${brandId}.php`;
+      const $ = await fetchPage(url);
+      const deviceList = readDevicesFromHtml($);
+
+      let nextPageId = 2;
+      let shortBrandId = brandId.split("-").slice(0, 2).join("-");
+      let brandIdNumber = brandId.split("-")[2];
+
+      let newDevices;
+      do {
+        const url = `${BASE_URL}${shortBrandId}-f-${brandIdNumber}-0-p${nextPageId}.php`;
+
+        const $$ = await fetchPage(url);
+        newDevices = readDevicesFromHtml($$);
+
+        if (newDevices.length > 0) {
+          deviceList.push(...newDevices);
+          nextPageId++;
+        }
+      } while (newDevices.length > 0);
+
+      resolve(deviceList);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+function readDevicesFromHtml($: CheerioAPI): DeviceSummary[] {
+  const deviceList: DeviceSummary[] = [];
+  const devices = findTag($, "div.makers > ul > li > a");
+  devices.each((index, element) => {
+    // id
+    const deviceId = extrapolateAttrFromElement($(element), "href")?.split(
+      "."
+    )[0];
+
+    // name
+    const deviceNameTag = getChildOfParentFromElement(
+      $,
+      $(element),
+      "strong span"
+    );
+    const deviceName = deviceNameTag
+      ? extrapolateTextFromElement(deviceNameTag)
+      : "";
+
+    const imgElement = getChildOfParentFromElement($, $(element), "img");
+    if (!imgElement) {
+      throw new Error("Image element not found");
+    }
+
+    const titleAttr = extrapolateAttrFromElement($(imgElement), "title");
+
+    const titleAttrSplitted =
+      titleAttr && titleAttr.split("Features")[1]
+        ? titleAttr.split("Features")[1].split(",")
+        : [];
+
+    // fullname
+    const deviceFullName =
+      titleAttr && titleAttr.split("Features")[0]
+        ? titleAttr.split("Features")[0]?.split(".")[0]
+          ? titleAttr.split("Features")[0]?.split(".")[0]
+          : titleAttr || ""
+        : titleAttr || "";
+
+    // announced
+    const deviceAnnounced =
+      titleAttr && titleAttr.split("Features")[1]
+        ? titleAttr.split("Features")[0]?.split(".")[1]
+        : "";
+
+    // img
+    const imgAttr = extrapolateAttrFromElement($(imgElement), "src");
+    const imgUrl = imgAttr ? imgAttr : "";
+
+    // url
+    const deviceUrlAttr = extrapolateAttrFromElement($(element), "href");
+    const deviceUrl = deviceUrlAttr ? `${BASE_URL}${deviceUrlAttr}` : "";
+
+    let fieldsIndex = 0;
+    // display
+    const deviceDisplay =
+      titleAttrSplitted[fieldsIndex] &&
+      titleAttrSplitted[fieldsIndex].includes("display")
+        ? titleAttrSplitted[fieldsIndex].replaceAll("display", "").trim()
+        : "";
+
+    if (deviceDisplay) fieldsIndex++;
+
+    // chipset
+    const deviceChipset =
+      titleAttrSplitted[fieldsIndex] &&
+      titleAttrSplitted[fieldsIndex].includes("chipset")
+        ? titleAttrSplitted[fieldsIndex].replaceAll("chipset", "").trim()
+        : "";
+
+    if (deviceChipset) fieldsIndex++;
+
+    // primary camera
+    const devicePrimaryCamera =
+      titleAttrSplitted[fieldsIndex] &&
+      titleAttrSplitted[fieldsIndex].includes("primary camera")
+        ? titleAttrSplitted[fieldsIndex].replaceAll("primary camera", "").trim()
+        : "";
+
+    if (devicePrimaryCamera) {
+      fieldsIndex++;
+    }
+
+    // selfieCamera
+    const deviceSelfieCamera =
+      titleAttrSplitted[fieldsIndex] &&
+      titleAttrSplitted[fieldsIndex].includes("front camera")
+        ? titleAttrSplitted[fieldsIndex].replaceAll("front camera", "").trim()
+        : "";
+
+    if (deviceSelfieCamera) {
+      fieldsIndex++;
+    }
+
+    // battery
+
+    const deviceBattery =
+      titleAttrSplitted[fieldsIndex] &&
+      titleAttrSplitted[fieldsIndex].includes("battery")
+        ? titleAttrSplitted[fieldsIndex]
+            .replaceAll("battery", "")
+            .replaceAll(".", "")
+            .trim()
+        : "";
+
+    if (deviceBattery) {
+      fieldsIndex++;
+    }
+
+    // storage
+    const deviceStorage =
+      titleAttrSplitted[fieldsIndex] &&
+      titleAttrSplitted[fieldsIndex].includes("storage")
+        ? titleAttrSplitted[fieldsIndex].replaceAll("storage", "").trim()
+        : "";
+
+    if (deviceStorage) {
+      fieldsIndex++;
+    }
+
+    // memory
+    const deviceMemory =
+      titleAttrSplitted[fieldsIndex] &&
+      titleAttrSplitted[fieldsIndex].includes("RAM")
+        ? titleAttrSplitted[fieldsIndex].replaceAll("RAM", "").trim()
+        : "";
+
+    if (deviceMemory) {
+      fieldsIndex++;
+    }
+
+    // other features
+    const deviceOther =
+      titleAttrSplitted.length > fieldsIndex
+        ? titleAttrSplitted.slice(fieldsIndex)
+        : [];
+
+    const deviceSpecs = {
+      inchDisplay: deviceDisplay,
+      chipset: deviceChipset,
+      primaryCamera: devicePrimaryCamera,
+      selfieCamera: deviceSelfieCamera,
+      battery: deviceBattery,
+      storage: deviceStorage,
+      memory: deviceMemory,
+      otherFeatures: deviceOther,
+    } as DeviceSummarySpecs;
+
+    if (deviceId) {
+      deviceList.push({
+        id: deviceId,
+        url: deviceUrl,
+        name: deviceName,
+        fullName: deviceFullName,
+        announced: deviceAnnounced,
+        img: imgUrl,
+        specs: deviceSpecs,
+      });
+    }
+  });
+
+  return deviceList;
 }
 
 function getDecryptParameters($: CheerioAPI): {

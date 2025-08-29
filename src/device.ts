@@ -242,7 +242,7 @@ export function getDevice(deviceId: string): Promise<Device> {
         .filter((item) => item.length > 0);
       const osName = osList[0].split(" ")[0] || osList[0];
       const osVersion = osList[0].split(" ")[1] || "";
-      const osUpTo = osList[1].includes("up to") ? osList[1].trim() : "";
+      const osUpTo = osList[1].includes("up to") || osList[1].includes("upgradable") ? osList[1].trim() : "";
       let osCustomName = "";
 
       if (osUpTo) {

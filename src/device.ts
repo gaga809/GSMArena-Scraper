@@ -56,30 +56,21 @@ export function getDevice(deviceId: string): Promise<Device> {
 
       // NETWORK
       returnedDevice.network = {} as Device["network"];
-      returnedDevice.network.technology = extrapolateText(
+
+      returnedDevice.network.technology = getAllNetworkValuesPerRow(
         $,
-        'a[data-spec="nettech"]'
+        "nettech"
       );
-      returnedDevice.network.bands2G = extrapolateText(
-        $,
-        'td[data-spec="net2g"]'
-      );
-      returnedDevice.network.bands3G = extrapolateText(
-        $,
-        'td[data-spec="net3g"]'
-      );
-      returnedDevice.network.bands4G = extrapolateText(
-        $,
-        'td[data-spec="net4g"]'
-      );
-      returnedDevice.network.bands5G = extrapolateText(
-        $,
-        'td[data-spec="net5g"]'
-      );
-      returnedDevice.network.speed = extrapolateText(
-        $,
-        'td[data-spec="speed"]'
-      );
+
+      returnedDevice.network.bands2G = getAllNetworkValuesPerRow($, "net2g");
+
+      returnedDevice.network.bands3G = getAllNetworkValuesPerRow($, "net3g");
+
+      returnedDevice.network.bands4G = getAllNetworkValuesPerRow($, "net4g");
+
+      returnedDevice.network.bands5G = getAllNetworkValuesPerRow($, "net5g");
+
+      returnedDevice.network.speed = getAllNetworkValuesPerRow($, "speed");
 
       // LAUNCH
       returnedDevice.launch = {} as Device["launch"];
@@ -837,4 +828,42 @@ function getDecryptParameters($: CheerioAPI): {
   if (dataMatch) data = dataMatch[1];
 
   return { iv, key, data };
+}
+
+function getAllNetworkValuesPerRow(
+  document: CheerioAPI,
+  currentDataSpec: string
+): string {
+  const returningList = [];
+  let nextTag: any = findTag(document, `td[data-spec="${currentDataSpec}"]`);
+  if (nextTag) {
+    const primaryTagText = extrapolateTextFromElement(nextTag);
+    primaryTagText.length > 0 ? returningList.push(primaryTagText) : null;
+
+    const nextTr = nextTag.closest("tr").next();
+    nextTag = getChildOfParentFromElement(document, nextTr, "td.nfo");
+
+    do {
+      if (
+        nextTag &&
+        (!extrapolateAttrFromElement(nextTag, "data-spec") ||
+          extrapolateAttrFromElement(nextTag, "data-spec") === "")
+      ) {
+        const text = extrapolateTextFromElement(nextTag);
+        text.length > 0 ? returningList.push(text) : null;
+
+        const nextTrInner = nextTag.closest("tr").next();
+        nextTag = getChildOfParentFromElement(document, nextTrInner, "td.nfo");
+      } else {
+        break;
+      }
+    } while (
+      nextTag &&
+      (!extrapolateAttrFromElement(nextTag, "data-spec") ||
+        extrapolateAttrFromElement(nextTag, "data-spec") === "")
+    );
+  }
+
+  console.log(returningList);
+  return returningList.join("\n");
 }

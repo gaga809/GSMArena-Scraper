@@ -3,3 +3,4 @@ node_modules/
 tsconfig.json
 *.log
 *.html
+*.npmrc

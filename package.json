@@ -4,6 +4,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gaga809/GSMArena-Scraper"
+  },
   "files": [
     "dist"
   ],

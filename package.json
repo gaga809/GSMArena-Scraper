@@ -1,7 +1,7 @@
 {
-  "name": "@gaga809/gsmarena-scraper",
-  "author": "gaga809",
-  "version": "1.0.1",
+  "name": "gsmarena-scraper",
+  "author": "gabbo",
+  "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",

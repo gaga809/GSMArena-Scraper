@@ -1,5 +1,5 @@
 {
-  "name": "gsmarena-scraper",
+  "name": "@gaga809/gsmarena-scraper",
   "author": "gaga809",
   "version": "1.0.0",
   "main": "dist/index.js",
@@ -8,7 +8,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gaga809/GSMArena-Scraper"
+    "url": "git+https://github.com/gaga809/GSMArena-Scraper.git"
   },
   "files": [
     "dist"

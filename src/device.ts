@@ -1,4 +1,4 @@
-import { Cheerio, CheerioAPI, load } from "cheerio";
+import { CheerioAPI, load } from "cheerio";
 import fs from "fs";
 import {
   BASE_URL,

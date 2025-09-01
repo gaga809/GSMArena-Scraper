@@ -191,3 +191,183 @@ export interface DeviceMiscSarSpecs {
   head: string;
   body: string;
 }
+
+// SEARCH
+export type AdvancedSearchOptions =
+  | SelectOption
+  | MultiSelectOption
+  | RangeOption
+  | BooleanOption;
+
+export interface BaseOption {
+  name: string;
+  label: string;
+}
+
+export interface SelectOption extends BaseOption {
+  type: "select";
+  values: BaseOption[];
+}
+
+export interface MultiSelectOption extends BaseOption {
+  type: "multi-select";
+  values: BaseOption[];
+}
+
+export interface RangeOption extends BaseOption {
+  type: "range";
+  min: number;
+  max: number;
+}
+
+export interface BooleanOption extends BaseOption {
+  type: "boolean";
+  selected?: boolean;
+}
+
+export interface AdvancedSearchQuery {
+  mode?: "cellphone" | "tablet";
+  brand?: number[] | null;
+  yearMin?: number | null;
+  yearMax?: number | null;
+  availability?: number[] | null;
+  priceMin?: number | null;
+  priceMax?: number | null;
+  network?: AdvancedSearchQueryNetwork | null;
+  sim?: AdvancedSearchQuerySim | null;
+  body?: AdvancedSearchQueryBody | null;
+  platform?: AdvancedSearchQueryPlatform | null;
+  memory?: AdvancedSearchQueryMemory | null;
+  display?: AdvancedSearchQueryDisplay | null;
+  mainCamera?: AdvancedSearchQueryCamera | null;
+  selfieCamera?: AdvancedSearchQuerySelfieCamera | null;
+  audio?: AdvancedSearchQueryAudio | null;
+  sensors?: AdvancedSearchQuerySensors | null;
+  connectivity?: AdvancedSearchQueryConnectivity | null;
+  battery?: AdvancedSearchQueryBattery | null;
+  misc?: AdvancedSearchQueryMisc | null;
+}
+
+export interface AdvancedSearchQueryNetwork {
+  net2g?: string[] | null;
+  net3g?: string[] | null;
+  net4g?: string[] | null;
+  net5g?: string[] | null;
+}
+
+export interface AdvancedSearchQuerySim {
+  dualsim?: boolean | null;
+  esim?: boolean | null;
+  size?: number[] | null;
+}
+
+export interface AdvancedSearchQueryBody {
+  formFactor?: number[] | null;
+  keyboardWithQwerty?: boolean | null;
+  heightMin?: number | null;
+  heightMax?: number | null;
+  widthMin?: number | null;
+  widthMax?: number | null;
+  thicknessMin?: number | null;
+  thicknessMax?: number | null;
+  weightMin?: number | null;
+  weightMax?: number | null;
+  ipCertificate?: number[] | null;
+  color?: string | null;
+  backMaterial?: number[] | null;
+  frameMaterial?: number[] | null;
+}
+
+export interface AdvancedSearchQueryPlatform {
+  os?: number | null;
+  osVersion?: number | null;
+  chipset?: number[] | null;
+  cpuCoresMin?: number | null;
+  cpuCoresMax?: number | null;
+}
+
+export interface AdvancedSearchQueryMemory {
+  ram?: number | null;
+  storage?: number | null;
+  cardSlot?: number | null;
+}
+
+export interface AdvancedSearchQueryDisplay {
+  resolutionMin?: number | null;
+  resolutionMax?: number | null;
+  sizeMin?: number | null; // In inches
+  sizeMax?: number | null; // In inches
+  densityMin?: number | null; // In pixels per inch
+  densityMax?: number | null; // In pixels per inch
+  technology?: number | null;
+  notch?: number | null;
+  refreshRateMin?: number | null;
+  refreshRateMax?: number | null;
+  hdr?: boolean | null;
+  oneBColors?: boolean | null;
+}
+
+export interface AdvancedSearchQueryCamera {
+  resolutionMin?: number | null;
+  resolutionMax?: number | null;
+  cameras?: number[] | null;
+  ois?: boolean | null;
+  fNumberMin?: number | null;
+  fNumberMax?: number | null;
+  telephoto?: boolean | null;
+  ultrawide?: boolean | null;
+  video?: number | null;
+  flash?: number[] | null;
+}
+
+export interface AdvancedSearchQuerySelfieCamera {
+  resolutionMin?: number | null;
+  resolutionMax?: number | null;
+  dualCamera?: boolean | null;
+  ois?: boolean | null;
+  frontFlash?: boolean | null;
+  popupCamera?: boolean | null;
+  underDisplayCamera?: boolean | null;
+}
+
+export interface AdvancedSearchQueryAudio {
+  jack?: boolean | null;
+  dualSpeakers?: boolean | null;
+}
+
+export interface AdvancedSearchQuerySensors {
+  fingerprint?: number[] | null;
+  accelerometer?: boolean | null;
+  gyroscope?: boolean | null;
+  proximity?: boolean | null;
+  barometer?: boolean | null;
+  heartRate?: boolean | null;
+  compass?: boolean | null;
+}
+
+export interface AdvancedSearchQueryConnectivity {
+  wlans?: number[] | null;
+  bluetooth?: number[] | null;
+  gps?: number[] | null;
+  nfc?: boolean | null;
+  infrared?: boolean | null;
+  fmRadio?: boolean | null;
+  usb?: number | null;
+}
+
+export interface AdvancedSearchQueryBattery {
+  capacityMin?: number | null;
+  capacityMax?: number | null;
+  sic?: boolean | null;
+  removable?: boolean | null;
+  wiredChargingMin?: number | null;
+  wiredChargingMax?: number | null;
+  wirelessChargingMin?: number | null;
+  wirelessChargingMax?: number | null;
+}
+
+export interface AdvancedSearchQueryMisc {
+  freeText?: string | null;
+  orderBy?: number | null;
+  reviewedOnly?: boolean | null;
+}

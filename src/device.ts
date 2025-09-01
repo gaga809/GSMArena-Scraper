@@ -1,5 +1,4 @@
 import { CheerioAPI, load } from "cheerio";
-import fs from "fs";
 import {
   BASE_URL,
   extrapolateAttrFromElement,
@@ -538,8 +537,6 @@ export async function fullSearch(query: string): Promise<DeviceSummary[]> {
         query
       )}`;
       const $ = await fetchPage(searchUrl);
-
-      fs.writeFileSync("search.html", $.html());
 
       resolve(deviceList);
     } catch (error) {

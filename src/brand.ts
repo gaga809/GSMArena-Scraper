@@ -1,12 +1,9 @@
 import {
   BASE_URL,
   extrapolateAttrFromElement,
-  extrapolateText,
   extrapolateTextFromElement,
-  extrapolateTextNoHTML,
   extrapolateTextNoHTMLFromElement,
   fetchPage,
-  findTag,
   getChildOfParent,
   getChildOfParentFromElement,
 } from "./common.js";

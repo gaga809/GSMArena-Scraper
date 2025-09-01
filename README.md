@@ -6,7 +6,7 @@ It works by scraping the GSMArena website with [Cheerio](https://cheerio.js.org/
 ## Installation
 
 ```bash
-npm install @gaga809/gsmarenaapi
+npm install gsmarena-scraper
 ```
 
 ## TypeScript usage

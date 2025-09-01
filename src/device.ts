@@ -23,9 +23,14 @@ import {
 } from "./types.js";
 
 /**
- * Fetch device data from GSMArena.
- * @param deviceId The ID of the device to fetch.
- * @returns A promise that resolves to the device data.
+ * Fetches detailed device information from GSMArena for a given device ID.
+ *
+ * This function loads the device page, parses all relevant specifications (such as network, launch, body, display, platform, memory, cameras, sound, comms, features, battery, misc, and pictures),
+ * and returns a fully populated `Device` object. If the device page cannot be fetched or parsed, the promise will be rejected with an error.
+ *
+ * @param deviceId - The unique identifier of the device to fetch (e.g., "samsung_galaxy-s24-ultra-12548").
+ * @returns {Promise<Device>} A promise that resolves to a `Device` object containing all parsed device specifications.
+ * @throws Will reject the promise if the device page cannot be fetched, parsed, or if required data is missing (this will only occur if valuable info is missing).
  */
 export function getDevice(deviceId: string): Promise<Device> {
   return new Promise(async (resolve, reject) => {
@@ -478,6 +483,16 @@ export function getDevice(deviceId: string): Promise<Device> {
   });
 }
 
+/**
+ * Searches for devices on GSMArena matching the given query string.
+ *
+ * This function performs a search using the provided query, decrypts the resulting data,
+ * parses the device summaries, and returns a list of matching devices.
+ *
+ * @param query - The search query string (e.g., "iPhone 15").
+ * @returns {Promise<DeviceSummary[]>} A promise that resolves to an array of `DeviceSummary` objects representing the search results.
+ * @throws Will reject the promise if the search page cannot be fetched, decryption parameters are missing, or parsing fails.
+ */
 export async function search(query: string): Promise<DeviceSummary[]> {
   return new Promise<DeviceSummary[]>(async (resolve, reject) => {
     try {
@@ -505,6 +520,16 @@ export async function search(query: string): Promise<DeviceSummary[]> {
   });
 }
 
+/**
+ * Performs a full search for devices on GSMArena using the given query string.
+ *
+ * This function executes a comprehensive search and is intended to retrieve all possible matches for the query.
+ * The results are written to a local file ("search.html") for debugging or inspection purposes.
+ *
+ * @param query - The search query string (e.g., "Galaxy S").
+ * @returns {Promise<DeviceSummary[]>} A promise that resolves to an array of `DeviceSummary` objects representing the search results.
+ * @throws Will reject the promise if the search page cannot be fetched or parsing fails.
+ */
 export async function fullSearch(query: string): Promise<DeviceSummary[]> {
   return new Promise<DeviceSummary[]>(async (resolve, reject) => {
     try {
@@ -523,6 +548,15 @@ export async function fullSearch(query: string): Promise<DeviceSummary[]> {
   });
 }
 
+/**
+ * Retrieves all devices for a specific brand from GSMArena.
+ *
+ * This function fetches all device summaries for the given brand, handling pagination if necessary.
+ *
+ * @param brandId - The unique identifier of the brand (e.g., "samsung-phones-9").
+ * @returns {Promise<DeviceSummary[]>} A promise that resolves to an array of `DeviceSummary` objects for the brand.
+ * @throws Will reject the promise if any page cannot be fetched or parsing fails.
+ */
 export function getAllDevicesOfBrand(
   brandId: string
 ): Promise<DeviceSummary[]> {

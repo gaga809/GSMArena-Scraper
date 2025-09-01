@@ -44,6 +44,7 @@ function performFetch(url: string): Promise<string> {
       "Cache-Control": "no-cache",
       Pragma: "no-cache",
       "Upgrade-Insecure-Requests": "1",
+      "Access-Control-Allow-Origin": "*",
     },
   }).then((response) => middlewareFetch(response));
 }

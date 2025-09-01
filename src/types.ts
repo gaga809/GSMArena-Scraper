@@ -199,29 +199,34 @@ export type AdvancedSearchOptions =
   | RangeOption
   | BooleanOption;
 
+export interface BaseCategory {
+  name: string;
+  type: "select" | "multi-select" | "range" | "checkbox" | "select-divided";
+}
+
 export interface BaseOption {
   name: string;
   label: string;
 }
 
-export interface SelectOption extends BaseOption {
-  type: "select";
+export interface SelectOption extends BaseCategory {
   values: BaseOption[];
 }
 
-export interface MultiSelectOption extends BaseOption {
-  type: "multi-select";
+export interface SelectOptionDivided extends BaseCategory {
+  values: { [key: string]: BaseOption[] };
+}
+
+export interface MultiSelectOption extends BaseCategory {
   values: BaseOption[];
 }
 
-export interface RangeOption extends BaseOption {
-  type: "range";
+export interface RangeOption extends BaseCategory {
   min: number;
   max: number;
 }
 
-export interface BooleanOption extends BaseOption {
-  type: "boolean";
+export interface BooleanOption extends BaseCategory {
   selected?: boolean;
 }
 

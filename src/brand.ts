@@ -36,7 +36,7 @@ export function getAllBrands(): Promise<Brand[]> {
 
       if (tbodyRows) {
         tbodyRows?.each((index, element) => {
-          const a = getChildOfParentFromElement($, $(element), "td > a");
+          const a = getChildOfParentFromElement($(element), "td > a");
 
           if (a) {
             const href = extrapolateAttrFromElement(a, "href");
@@ -46,7 +46,6 @@ export function getAllBrands(): Promise<Brand[]> {
             brandName = brandName ? brandName.replaceAll('"', "") : "";
 
             let brandDevicesTag = getChildOfParentFromElement(
-              $,
               $(element),
               "span"
             );

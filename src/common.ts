@@ -148,7 +148,6 @@ export function getChildOfParent(
 }
 
 export function getChildOfParentFromElement(
-  document: cheerio.CheerioAPI,
   parentElement: cheerio.Cheerio<AnyNode>,
   childQuery: string
 ) {

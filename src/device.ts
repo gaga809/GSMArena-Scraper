@@ -53,7 +53,7 @@ export function getDevice(deviceId: string): Promise<Device> {
 
       // PHOTO
       const photoMain = findTag($, 'div[class="specs-photo-main"]');
-      const photo = getChildOfParentFromElement($, photoMain, "img");
+      const photo = getChildOfParentFromElement(photoMain, "img");
       if (photo) {
         const photoUrl = extrapolateAttrFromElement(photo, "src");
         returnedDevice.photo = photoUrl ? photoUrl : "";
@@ -601,7 +601,6 @@ function readDevicesFromHtml($: CheerioAPI): DeviceSummary[] {
 
     // name
     const deviceNameTag = getChildOfParentFromElement(
-      $,
       $(element),
       "strong span"
     );
@@ -609,7 +608,7 @@ function readDevicesFromHtml($: CheerioAPI): DeviceSummary[] {
       ? extrapolateTextFromElement(deviceNameTag)
       : "";
 
-    const imgElement = getChildOfParentFromElement($, $(element), "img");
+    const imgElement = getChildOfParentFromElement($(element), "img");
     if (!imgElement) {
       throw new Error("Image element not found");
     }
@@ -799,7 +798,7 @@ function getAllNetworkValuesPerRow(
     primaryTagText.length > 0 ? returningList.push(primaryTagText) : null;
 
     const nextTr = nextTag.closest("tr").next();
-    nextTag = getChildOfParentFromElement(document, nextTr, "td.nfo");
+    nextTag = getChildOfParentFromElement(nextTr, "td.nfo");
 
     do {
       if (
@@ -811,7 +810,7 @@ function getAllNetworkValuesPerRow(
         text.length > 0 ? returningList.push(text) : null;
 
         const nextTrInner = nextTag.closest("tr").next();
-        nextTag = getChildOfParentFromElement(document, nextTrInner, "td.nfo");
+        nextTag = getChildOfParentFromElement(nextTrInner, "td.nfo");
       } else {
         break;
       }

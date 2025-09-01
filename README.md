@@ -16,7 +16,7 @@ npm install gsmarena-scraper
 #### 1. Get all brands
 
 ```typescript
-import { getAllBrands } from "gsmarenaapi";
+import { getAllBrands } from "gsmarena-scraper";
 
 (async () => {
   const brands = await getAllBrands();
@@ -27,7 +27,7 @@ import { getAllBrands } from "gsmarenaapi";
 #### 2. Get all devices of a brand
 
 ```typescript
-import { getAllDevicesOfBrand } from "gsmarenaapi";
+import { getAllDevicesOfBrand } from "gsmarena-scraper";
 
 (async () => {
   const devices = await getAllDevicesOfBrand("samsung-phones-9");
@@ -38,7 +38,7 @@ import { getAllDevicesOfBrand } from "gsmarenaapi";
 #### 3. Get device details
 
 ```typescript
-import { getDevice } from "gsmarenaapi";
+import { getDevice } from "gsmarena-scraper";
 
 (async () => {
   const device = await getDevice("samsung_galaxy_s24_ultra-12024");
@@ -49,7 +49,7 @@ import { getDevice } from "gsmarenaapi";
 #### 4. Search for devices
 
 ```typescript
-import { search } from "gsmarenaapi";
+import { search } from "gsmarena-scraper";
 
 (async () => {
   const results = await search("iPhone 15");
@@ -60,7 +60,7 @@ import { search } from "gsmarenaapi";
 #### 5. Full search
 
 ```typescript
-import { fullSearch } from "gsmarenaapi";
+import { fullSearch } from "gsmarena-scraper";
 
 (async () => {
   const results = await fullSearch("Galaxy");
@@ -75,7 +75,7 @@ import { fullSearch } from "gsmarenaapi";
 #### 1. Get all brands
 
 ```js
-const { getAllBrands } = require("gsmarenaapi");
+const { getAllBrands } = require("gsmarena-scraper");
 
 getAllBrands().then((brands) => console.log(brands));
 ```
@@ -83,7 +83,7 @@ getAllBrands().then((brands) => console.log(brands));
 #### 2. Get all devices of a brand
 
 ```js
-const { getAllDevicesOfBrand } = require("gsmarenaapi");
+const { getAllDevicesOfBrand } = require("gsmarena-scraper");
 
 getAllDevicesOfBrand("samsung-phones-9").then((devices) =>
   console.log(devices)
@@ -93,7 +93,7 @@ getAllDevicesOfBrand("samsung-phones-9").then((devices) =>
 #### 3. Get device details
 
 ```js
-const { getDevice } = require("gsmarenaapi");
+const { getDevice } = require("gsmarena-scraper");
 
 getDevice("samsung_galaxy_s24_ultra-12024").then((device) =>
   console.log(device)
@@ -103,7 +103,7 @@ getDevice("samsung_galaxy_s24_ultra-12024").then((device) =>
 #### 4. Search for devices
 
 ```js
-const { search } = require("gsmarenaapi");
+const { search } = require("gsmarena-scraper");
 
 search("iPhone 15").then((results) => console.log(results));
 ```
@@ -111,7 +111,7 @@ search("iPhone 15").then((results) => console.log(results));
 #### 5. Full search
 
 ```js
-const { fullSearch } = require("gsmarenaapi");
+const { fullSearch } = require("gsmarena-scraper");
 
 fullSearch("Galaxy").then((results) => console.log(results));
 ```

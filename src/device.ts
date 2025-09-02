@@ -98,39 +98,46 @@ export function getDevice(deviceId: string): Promise<Device> {
       returnedDevice.body.dimensions = {} as Device["body"]["dimensions"];
 
       const dimensions = extrapolateText($, 'td[data-spec="dimensions"]');
-      const fullMMDim = dimensions.split("(")[0].replaceAll("mm", "");
+      const fullMMDim = dimensions
+        ? dimensions.split("(")[0].replace(/mm/g, "")
+        : "";
       const [heightMM, widthMM, depthMM] = fullMMDim
-        .split("x")
-        .map((dim) => parseFloat(dim.trim()));
+        ? fullMMDim.split("x").map((dim) => parseFloat(dim.trim()))
+        : [undefined, undefined, undefined];
 
-      const fullInchDim = dimensions
-        .split("(")[1]
-        .replaceAll("in", "")
-        .replaceAll(")", "")
-        .trim();
+      const fullInchDim =
+        dimensions && dimensions.includes("(")
+          ? dimensions
+              .split("(")[1]
+              .replace(/in/g, "")
+              .replace(/\)/g, "")
+              .trim()
+          : "";
       const [heightInch, widthInch, depthInch] = fullInchDim
-        .split("x")
-        .map((dim) => parseFloat(dim.trim()));
+        ? fullInchDim.split("x").map((dim) => parseFloat(dim.trim()))
+        : [undefined, undefined, undefined];
 
       returnedDevice.body.dimensions = {
-        heightMM,
-        widthMM,
-        depthMM,
-        heightInch,
-        widthInch,
-        depthInch,
+        heightMM: heightMM ? heightMM : 0,
+        widthMM: widthMM ? widthMM : 0,
+        depthMM: depthMM ? depthMM : 0,
+        heightInch: heightInch ? heightInch : 0,
+        widthInch: widthInch ? widthInch : 0,
+        depthInch: depthInch ? depthInch : 0,
       };
 
       /// weight
       returnedDevice.body.weight = {} as Device["body"]["weight"];
 
       const weight = extrapolateText($, 'td[data-spec="weight"]');
-      const [weightG, weightOz] = weight.split("(").map((dim) => dim.trim());
+      const [weightG, weightOz] = weight
+        ? weight.split("(").map((dim) => dim.trim())
+        : [undefined, undefined];
       returnedDevice.body.weight = {
-        weightG: parseFloat(weightG.replace("g", "").trim()),
-        weightOz: parseFloat(
-          weightOz.replace("oz", "").replaceAll(")", "").trim()
-        ),
+        weightG: weightG ? parseFloat(weightG.replace("g", "").trim()) : 0,
+        weightOz: weightOz
+          ? parseFloat(weightOz.replace("oz", "").replace(/\)/g, "").trim())
+          : 0,
       };
 
       /// build
@@ -144,9 +151,11 @@ export function getDevice(deviceId: string): Promise<Device> {
       /// other
       const other = extrapolateText($, 'td[data-spec="bodyother"]');
       const otherList = other
-        .split("<br>")
-        .map((item) => item.trim().replaceAll('"', ""))
-        .filter((item) => item.length > 0);
+        ? other
+            .split("<br>")
+            .map((item) => item.trim().replace(/"/g, ""))
+            .filter((item) => item.length > 0)
+        : [];
       returnedDevice.body.other = otherList;
 
       /// DISPLAY
@@ -171,7 +180,7 @@ export function getDevice(deviceId: string): Promise<Device> {
         areaCM = parseFloat(sizeParts[1].replace("cm", "").trim());
       }
 
-      if (size.includes("(")) {
+      if (size && size.includes("(")) {
         screenToBodyRatio = size.split("(")[0].replace(")", "").trim();
       }
 
@@ -193,15 +202,17 @@ export function getDevice(deviceId: string): Promise<Device> {
       const resolutionParts = resolution.split(",");
       if (resolutionParts.length >= 1) {
         const [w, h] = resolutionParts[0].split("x");
-        width = parseInt(w?.trim() || "0");
-        height = parseInt(h?.replace("pixels", "").trim() || "0");
+        width = w ? parseInt(w.trim()) : 0;
+        height = h ? parseInt(h.replace("pixels", "").trim()) : 0;
       }
       if (resolutionParts.length >= 2) {
-        ratio = resolutionParts[1]?.split("(")[0]?.replace("ratio", "").trim();
-        pixelDensityPPI = resolutionParts[1]
-          ?.split("(")[1]
-          ?.replace(")", "")
-          .trim();
+        ratio = resolutionParts[1]
+          ? resolutionParts[1].split("(")[0].replace("ratio", "").trim()
+          : "";
+        pixelDensityPPI =
+          resolutionParts[1] && resolutionParts[1].includes("(")
+            ? resolutionParts[1].split("(")[1].replace(")", "").trim()
+            : "";
       }
 
       returnedDevice.display.resolution = {
@@ -216,11 +227,12 @@ export function getDevice(deviceId: string): Promise<Device> {
         $,
         'td[data-spec="displayprotection"]'
       );
-      const protectionList =
-        protection
-          ?.split(",")
-          .filter((item) => item.trim().length > 0)
-          .map((item) => item.trim()) || [];
+      const protectionList = protection
+        ? protection
+            .split(",")
+            .filter((item) => item.trim().length > 0)
+            .map((item) => item.trim())
+        : [];
       returnedDevice.display.protection = protectionList;
 
       /// other
@@ -229,7 +241,7 @@ export function getDevice(deviceId: string): Promise<Device> {
       const otherDisplayList = otherDisplay
         ? otherDisplay
             .split("<br>")
-            .map((item) => item.trim().replaceAll('"', ""))
+            .map((item) => item.trim().replace(/"/g, ""))
             .filter((item) => item.length > 0)
         : [];
 
@@ -241,13 +253,16 @@ export function getDevice(deviceId: string): Promise<Device> {
       returnedDevice.platform.os = {} as Device["platform"]["os"];
       const os = extrapolateText($, 'td[data-spec="os"]');
       const osList = os
-        .split(",")
-        .map((item) => item.trim())
-        .filter((item) => item.length > 0);
-      const osName = osList[0].split(" ")[0] || osList[0];
-      const osVersion = osList[0].split(" ")[1] || "";
+        ? os
+            .split(",")
+            .map((item) => item.trim())
+            .filter((item) => item.length > 0)
+        : [];
+      const osName = osList[0] ? osList[0].split(" ")[0] : "";
+      const osVersion = osList[0] ? osList[0].split(" ")[1] || "" : "";
       const osUpTo =
-        osList[1].includes("up to") || osList[1].includes("upgradable")
+        osList[1] &&
+        (osList[1].includes("up to") || osList[1].includes("upgradable"))
           ? osList[1].trim()
           : "";
       let osCustomName = "";
@@ -296,13 +311,15 @@ export function getDevice(deviceId: string): Promise<Device> {
         'td[data-spec="internalmemory"]'
       );
       const storageOptions = [] as DeviceMemoryInternalStorageOption[];
-      internalStorage.split(",").map((item) => {
-        const [storage, ram] = item.trim().split(" ");
-        storageOptions.push({
-          storage: storage.trim(),
-          memory: ram.trim(),
-        } as DeviceMemoryInternalStorageOption);
-      });
+      if (internalStorage) {
+        internalStorage.split(",").map((item) => {
+          const [storage, ram] = item.trim().split(" ");
+          storageOptions.push({
+            storage: storage ? storage.trim() : "",
+            memory: ram ? ram.trim() : "",
+          } as DeviceMemoryInternalStorageOption);
+        });
+      }
       returnedDevice.memory.internal.storageOptions = storageOptions;
 
       /// memory
@@ -393,8 +410,8 @@ export function getDevice(deviceId: string): Promise<Device> {
       const batteryChargingList = batteryCharging
         ? batteryCharging
             .split("<br>")
-            .map((item) => item.trim().replaceAll('"', ""))
-            .filter((item) => item.length > 0)
+            .map((item: string) => item.trim().replace(/"/g, ""))
+            .filter((item: string) => item.length > 0)
         : [];
 
       returnedDevice.battery.charging = batteryChargingList;
@@ -423,9 +440,9 @@ export function getDevice(deviceId: string): Promise<Device> {
       const sarEu = extrapolateText($, 'td[data-spec="sar-eu"]');
       const sarEuList = sarEu
         ? sarEu
-            .replaceAll("(head)", ",")
-            .replaceAll("(body)", "")
-            .replaceAll("&nbsp", "")
+            .replace(/\(head\)/g, ",")
+            .replace(/\(body\)/g, "")
+            .replace(/&nbsp/g, "")
             .split(",")
             .map((s) => s.trim())
         : [];
@@ -433,9 +450,9 @@ export function getDevice(deviceId: string): Promise<Device> {
       const sarUs = extrapolateText($, 'td[data-spec="sar-us"]');
       const sarUsList = sarUs
         ? sarUs
-            .replaceAll("(head)", ",")
-            .replaceAll("(body)", "")
-            .replaceAll("&nbsp", "")
+            .replace(/\(head\)/g, ",")
+            .replace(/\(body\)/g, "")
+            .replace(/&nbsp/g, "")
             .split(",")
             .map((s) => s.trim())
         : [];
@@ -443,18 +460,20 @@ export function getDevice(deviceId: string): Promise<Device> {
       returnedDevice.misc.sar =
         sarEuList && sarUsList
           ? {
-              eu: sarEuList
-                ? {
-                    head: sarEuList[0],
-                    body: sarEuList[1],
-                  }
-                : null,
-              other: sarUsList
-                ? {
-                    head: sarUsList[0],
-                    body: sarUsList[1],
-                  }
-                : null,
+              eu:
+                sarEuList.length >= 2
+                  ? {
+                      head: sarEuList[0],
+                      body: sarEuList[1],
+                    }
+                  : null,
+              other:
+                sarUsList.length >= 2
+                  ? {
+                      head: sarUsList[0],
+                      body: sarUsList[1],
+                    }
+                  : null,
             }
           : null;
 
@@ -819,6 +838,5 @@ function getAllNetworkValuesPerRow(
     );
   }
 
-  console.log(returningList);
   return returningList.join("\n");
 }

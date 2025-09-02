@@ -393,8 +393,8 @@ export function getDevice(deviceId: string): Promise<Device> {
       const batteryChargingList = batteryCharging
         ? batteryCharging
             .split("<br>")
-            .map((item) => item.trim().replaceAll('"', ""))
-            .filter((item) => item.length > 0)
+            .map((item: string) => item.trim().replaceAll('"', ""))
+            .filter((item: string) => item.length > 0)
         : [];
 
       returnedDevice.battery.charging = batteryChargingList;
